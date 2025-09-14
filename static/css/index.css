@@ -5,18 +5,38 @@ body{
 }
 
 .dialogs-list {
-    background-color: rgb(53, 53, 53);
-    width: 16vw;
-    height: 22vh;
-    border-radius: 4vw;
+    width: 22vw;
+    height: 60vh;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .dialogs-list p {
-    color: rgb(131, 164, 186);
-    font-size: 3vh;
+    margin-top: 5%;
+    color: rgb(216, 187, 187);
+    font-size: 2rem;
+    text-align: center;
+}
+
+.dialogs-list div {
+    width: 90%;
+    margin-top: 5%;
+    margin-left: 5%;
+    margin-right: 5%;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.dialogs-list div div {
+    margin: 0px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
 }
 
 .dialogs-list div div p {
     color: rgb(151, 180, 199);
-    font-size: 2rem;
+    font-size: 1.5rem;
 }

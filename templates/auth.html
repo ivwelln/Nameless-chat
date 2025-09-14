@@ -7,21 +7,80 @@
     <link rel="stylesheet" href="static/css/auth.css">
     <title>Auth</title>
 </head>
-<body class="container" style="justify-content: flex-start; align-items: flex-start">
+<body class="container" style="flex-direction: row;">
     <div class="image-side container">
         <div class="container main-frame"> <!-- Main frame -->
-            <form id="auth-form" action="/auth" method="post" class="container" style="flex-direction: column;">
-                <input type="email" placeholder="email" name="email" class="space" required>
+            <form id="auth-form" action="/auth" method="post" class="container">
+                <input type="email" placeholder="Email" name="email" class="space" required>
                 <div id="extra-fields"></div>
+                <button type="submit" id="submit-btn">Next</button>
             </form>
+            <p id="alert"></p>
         </div>
     </div>
     <div class="container info-side" style="flex-direction:column">
         <div class="message-frame"> <!-- Message frame -->
-            <p>Create your new account</p>
+            <p id="info-text">Create new account</p>
         </div>
-        <button type="submit" id="submit-btn" form="auth-form">Next</button>
     </div>
-    
+
+    <script>
+        const form = document.getElementById("auth-form");
+        const extraField = document.getElementById("extra-fields");
+        const alert = document.getElementById("alert");
+        const submit = document.getElementById("submit-btn");
+        const infoText = document.getElementById("info-text");
+
+        let mode = null
+
+        submit.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            if (!mode) {
+                const res = await fetch("/auth/check-email", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                mode = data.mode;
+                infoText.textContent = data.message;
+                alert.textContent = "";
+                extraField.innerHTML = ""
+
+                if (mode === "login") {
+                    extraField.innerHTML = `<input type="password" name="password" placeholder="Password" class="space" required>`;
+                    submit.textContent = "Login";
+                }
+                else if (mode === "register") {
+                    extraField.innerHTML = `
+                    <input type="password" name="password" placeholder="Password" class="space" required>
+                    <input type="password" name="repeatedPassword" placeholder="Repeat password" class="space" required>
+                    `;
+                }
+                submit.textContent = "Register";
+            }
+            else {
+                const res = await fetch("/auth/submit", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.href = data.redirect;
+                }
+                else {
+                    alert.textContent = data.alert || "Unknown error";
+                }
+            }
+        })
+
+    </script>
+
 </body>
+
 </html>
