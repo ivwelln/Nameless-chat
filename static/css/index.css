@@ -1,0 +1,22 @@
+body{
+    background: url("/static/images/background-main.svg");
+    margin: 0px;
+    padding: 0px;
+}
+
+.dialogs-list {
+    background-color: rgb(53, 53, 53);
+    width: 16vw;
+    height: 22vh;
+    border-radius: 4vw;
+}
+
+.dialogs-list p {
+    color: rgb(131, 164, 186);
+    font-size: 3vh;
+}
+
+.dialogs-list div div p {
+    color: rgb(151, 180, 199);
+    font-size: 2rem;
+}

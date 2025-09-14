@@ -3,33 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/auth.css">
     <title>Auth</title>
 </head>
-<body>
-    <div> <!-- Главная рамочка -->
-        <form action="/auth" method="post">
-            <input type="email" name="email" placeholder="Email" required>
-            <!-- Если аккаунт зарегестрирован, то после ввода email появляется только input "password". Иначе появляются оба инпута.-->
-
-            {% if message %}
-                <p style="visibility:hidden"> {{message}} </p> <!-- Если почта не зарегистрирована, message = "Создайте новый аккаунт."-->
-            {% endif %}
-
-            {% if mode = "login" %}
-                <input type="password" name="password" placeholder="Password" style="visibility: hidden;" required>
-            {% endif %}
-
-            {% if mode = "register" %}
-                <input type="password" name="password" placeholder="Password" style="visibility: hidden;" required>
-                <input type="password" name="repeatPassword" placeholder="Repeat password" style="visibility: hidden;" required>             {% endif %}
-
-            <!-- После ввода email кнопка action становится "Далее". Если почта заегестрирована, Она превращается в "Войте. Иначе - Зарегестривароться."-->
-            <button type="submit">
-                {% if mode == "login" %} Login {%elif mode == "register" %} Register {% else %} Next {% endif %}
-            </button>
-
-        </form>
+<body class="container" style="justify-content: flex-start; align-items: flex-start">
+    <div class="image-side container">
+        <div class="container main-frame"> <!-- Main frame -->
+            <form id="auth-form" action="/auth" method="post" class="container" style="flex-direction: column;">
+                <input type="email" placeholder="email" name="email" class="space" required>
+                <div id="extra-fields"></div>
+            </form>
+        </div>
     </div>
+    <div class="container info-side" style="flex-direction:column">
+        <div class="message-frame"> <!-- Message frame -->
+            <p>Create your new account</p>
+        </div>
+        <button type="submit" id="submit-btn" form="auth-form">Next</button>
+    </div>
+    
 </body>
 </html>
