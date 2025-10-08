@@ -1,2 +1,2 @@
 # Nameless chat
-A messanger
+A messenger
