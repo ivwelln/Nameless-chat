@@ -1,86 +1,358 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}">
-    <title>Auth</title>
+    <title>Nameless — Auth</title>
+
+    <style>
+        :root {
+            --bg-main: #0f0f12;
+            --bg-glass: rgba(30, 30, 36, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-main: #eaeaea;
+            --text-muted: #9a9a9a;
+            --accent: #8b5cf6;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1b1b22, var(--bg-main));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        .auth-card {
+            width: 900px;
+            max-width: 95%;
+            height: 500px;
+            display: flex;
+            background: var(--bg-glass);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glass);
+            border-radius: 22px;
+            overflow: hidden;
+        }
+
+        /* INFO */
+        .info-panel {
+            width: 40%;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .info-panel h1 {
+            font-size: 30px;
+            font-weight: 600;
+        }
+
+        .info-panel p {
+            color: var(--text-muted);
+            line-height: 1.5;
+            max-width: 260px;
+        }
+
+        .info-panel button {
+            margin-top: 28px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        /* FORMS */
+        .form-panel {
+            width: 60%;
+            overflow: hidden;
+        }
+
+        .forms {
+            width: 200%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form {
+            width: 50%;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form h2 {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+        }
+
+        .form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex-grow: 1;
+        }
+
+        .form input {
+            max-width: 340px;
+            padding: 14px 16px;
+            font-size: 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border-glass);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-main);
+        }
+
+        .form input::placeholder {
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+
+        .form input.error {
+            border-color: var(--error);
+        }
+
+        .error-text {
+            font-size: 13px;
+            color: var(--error);
+            display: none;
+            max-width: 340px;
+        }
+
+        .form-footer {
+            margin-top: 24px;
+        }
+
+        .form button {
+            width: 340px;
+            padding: 13px;
+            border-radius: 14px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        /* STATES */
+        .auth-card.register .forms {
+            transform: translateX(-50%);
+        }
+
+        .auth-card.register .info-login {
+            display: none;
+        }
+
+        .auth-card:not(.register) .info-register {
+            display: none;
+        }
+
+        @media (max-width: 800px) {
+            .auth-card {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .info-panel,
+            .form-panel {
+                width: 100%;
+            }
+
+            .forms {
+                width: 100%;
+                transform: none !important;
+            }
+
+            .form {
+                width: 100%;
+            }
+
+            .form input,
+            .form button,
+            .error-text {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
-<body class="container" style="flex-direction: row;">
-    <div class="image-side container">
-        <div class="container main-frame"> <!-- Main frame -->
-            <form id="auth-form" action="/auth" method="post" class="container">
-                <input type="email" placeholder="Email" name="email" class="space" required>
-                <div id="extra-fields"></div>
-                <button type="submit" id="submit-btn">Next</button>
+
+<body>
+
+<div class="auth-card" id="authCard">
+
+    <div class="info-panel">
+        <div class="info-login">
+            <h1>Рады видеть снова</h1>
+            <p>Войдите, чтобы продолжить общение в Nameless.</p>
+            <button onclick="switchMode()">Создать аккаунт</button>
+        </div>
+
+        <div class="info-register">
+            <h1>Добро пожаловать</h1>
+            <p>Минималистичный чат без лишнего шума.</p>
+            <button onclick="switchMode()">У меня уже есть аккаунт</button>
+        </div>
+    </div>
+
+    <div class="form-panel">
+        <div class="forms">
+
+            <!-- LOGIN -->
+            <form class="form" method="post" id="loginForm" action="{{ url_for('login_user') }}">
+                <h2>Вход</h2>
+                <div class="subtitle">Email и пароль</div>
+
+                <div class="form-fields">
+                    <input type="email" id="login_email" placeholder="Email" name="login_email" required>
+                    <input type="password" id="login_password" placeholder="Пароль" name="login_password" required>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit">Войти</button>
+                </div>
             </form>
-            <p id="alert"></p>
+
+            <!-- REGISTER -->
+            <form class="form" id="registerForm" method="post" action="{{ url_for('register_user') }}">
+                <h2>Регистрация</h2>
+                <div class="subtitle">Создание нового аккаунта</div>
+
+                <div class="form-fields">
+                    <input type="text" id="username" placeholder="Имя пользователя" name="username" required>
+                    <input type="email" id="email" placeholder="Email" name="email" required>
+
+                    <input type="password" id="password" placeholder="Пароль (мин. 8 символов)" name="password" required>
+                    <input type="password" id="passwordRepeat" placeholder="Повторите пароль" name="repeat_password" required>
+
+                    <div class="error-text" id="lengthError">
+                        Пароль должен содержать минимум 8 символов
+                    </div>
+
+                    <div class="error-text" id="matchError">
+                        Пароли не совпадают
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit">Создать аккаунт</button>
+                </div>
+            </form>
+
         </div>
     </div>
-    <div class="container info-side" style="flex-direction:column">
-        <div class="message-frame"> <!-- Message frame -->
-            <p id="info-text">Create new account</p>
-        </div>
-    </div>
+</div>
 
-    <script>
-        const form = document.getElementById("auth-form");
-        const extraField = document.getElementById("extra-fields");
-        const alert = document.getElementById("alert");
-        const submit = document.getElementById("submit-btn");
-        const infoText = document.getElementById("info-text");
+<script>
+    const card = document.getElementById("authCard");
+    const registerForm = document.getElementById("registerForm");
+    const loginForm = document.getElementById("loginForm");
 
-        let mode = null
+    const password = document.getElementById("password");
+    const passwordRepeat = document.getElementById("passwordRepeat");
 
-        submit.addEventListener("click", async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
+    const lengthError = document.getElementById("lengthError");
+    const matchError = document.getElementById("matchError");
 
-            if (!mode) {
-                const res = await fetch("/auth/check-email", {
-                    method: "POST",
-                    body: formData
-                });
+    function switchMode() {
+        card.classList.toggle("register");
+    }
 
-                const data = await res.json();
+    function validatePasswords() {
+        let valid = true;
 
-                mode = data.mode;
-                infoText.textContent = data.message;
-                alert.textContent = "";
-                extraField.innerHTML = ""
+        if (password.value.length < 8) {
+            password.classList.add("error");
+            lengthError.style.display = "block";
+            valid = false;
+        } else {
+            lengthError.style.display = "none";
+        }
 
-                if (mode === "login") {
-                    extraField.innerHTML = `<input type="password" name="password" placeholder="Password" class="space" required>`;
-                    submit.textContent = "Login";
-                }
-                else if (mode === "register") {
-                    extraField.innerHTML = `
-                    <input type="password" name="password" placeholder="Password" class="space" required>
-                    <input type="password" name="repeatedPassword" placeholder="Repeat password" class="space" required>
-                    `;
-                }
-                submit.textContent = "Register";
-            }
-            else {
-                const res = await fetch("/auth/submit", {
-                    method: "POST",
-                    body: formData
-                });
+        if (password.value !== passwordRepeat.value) {
+            passwordRepeat.classList.add("error");
+            matchError.style.display = "block";
+            valid = false;
+        } else {
+            matchError.style.display = "none";
+        }
 
-                const data = await res.json();
+        if (valid) {
+            password.classList.remove("error");
+            passwordRepeat.classList.remove("error");
+        }
 
-                if (data.success) {
-                    window.location.href = data.redirect;
-                }
-                else {
-                    alert.textContent = data.alert || "Unknown error";
-                }
-            }
-        })
+        return valid;
+    }
 
-    </script>
+    [password, passwordRepeat].forEach(input => {
+        input.addEventListener("input", validatePasswords);
+    });
+
+    registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (!validatePasswords()) return;
+
+        const res = await fetch("/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                username: document.getElementById("username").value,
+                email: document.getElementById("email").value,
+                password: password.value,
+                repeat_password: passwordRepeat.value
+            })
+        });
+
+        if (res.ok) {
+            window.location.href = "/";
+        } else {
+            const err = await res.json();
+            alert(err.detail);
+        }
+    });
+
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const res = await fetch("/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                email: document.getElementById("login_email").value,
+                password: document.getElementById("login_password").value
+            })
+        });
+
+        if (res.ok) {
+            window.location.href = "/";
+        } else {
+            const err = await res.json();
+            alert(err.detail);
+        }
+    });
+</script>
 
 </body>
-
 </html>

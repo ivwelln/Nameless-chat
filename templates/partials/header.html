@@ -1,0 +1,22 @@
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-mark">N</div>
+        <div class="brand-text">
+            <div class="brand-title">Nameless</div>
+            <div class="brand-subtitle">Главный чат</div>
+        </div>
+    </div>
+    <div class="topbar-actions">
+        {% if user %}
+            <div class="user-pill">
+                <span class="user-dot"></span>
+                <span>{{ user.username }}</span>
+            </div>
+            <form action="/auth/logout" method="post">
+                <button class="ghost-btn" type="submit">Выйти</button>
+            </form>
+        {% else %}
+            <button class="ghost-btn" type="button" data-open-auth>Войти</button>
+        {% endif %}
+    </div>
+</header>
