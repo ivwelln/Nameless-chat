@@ -1,0 +1,42 @@
+<div class="auth-overlay" id="authOverlay" aria-hidden="true">
+    <div class="auth-card" role="dialog" aria-label="Авторизация">
+        <div class="auth-tabs">
+            <button class="tab-switch active" type="button" data-tab="login">Войти</button>
+            <button class="tab-switch" type="button" data-tab="register">Зарегистрироваться</button>
+        </div>
+
+        <div class="auth-panels">
+            <form class="auth-form active" id="loginForm" data-panel="login">
+                <label>
+                    <span>Email</span>
+                    <input type="email" name="email" placeholder="you@email.com" required>
+                </label>
+                <label>
+                    <span>Пароль</span>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </label>
+                <button class="primary-btn" type="submit">Войти</button>
+            </form>
+
+            <form class="auth-form" id="registerForm" data-panel="register">
+                <label>
+                    <span>Имя пользователя</span>
+                    <input type="text" name="username" placeholder="Nameless" required>
+                </label>
+                <label>
+                    <span>Email</span>
+                    <input type="email" name="email" placeholder="you@email.com" required>
+                </label>
+                <label>
+                    <span>Пароль</span>
+                    <input type="password" name="password" placeholder="Минимум 8 символов" required>
+                </label>
+                <label>
+                    <span>Повтор пароля</span>
+                    <input type="password" name="repeat_password" placeholder="Повторите пароль" required>
+                </label>
+                <button class="primary-btn" type="submit">Создать аккаунт</button>
+            </form>
+        </div>
+    </div>
+</div>

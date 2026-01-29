@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" data-authenticated="{{ 'true' if user else 'false' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
-    <title>Nameless Chat</title>
+    <title>Nameless — Chat</title>
+    <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
-    <header class="container" style="align-items:flex-end">
-        {% include "_profile-mini.html" with context %}
-    </header>
-    <main>
-        {% include "_dialogs.html" with context %}
-    </main>
-    <div style="height:100vh" >
+    <div class="page">
+        {% include 'partials/header.html' %}
 
+        <main class="center">
+            <section class="chat-shell" aria-label="Основной чат">
+                {% include 'partials/chat.html' %}
+                {% include 'partials/auth_overlay.html' %}
+            </section>
+        </main>
+
+        {% include 'partials/footer.html' %}
     </div>
+
+    <script src="/static/js/index.js" defer></script>
 </body>
 </html>

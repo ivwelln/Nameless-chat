@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nameless</title>
+
+    <style>
+        :root {
+            --bg-main: #0f0f12;
+            --bg-glass: rgba(30, 30, 36, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-main: #eaeaea;
+            --text-muted: #9a9a9a;
+            --accent: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #1b1b22, var(--bg-main));
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        header {
+            height: 64px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #444;
+        }
+
+        .username {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            padding: 32px 16px;
+        }
+
+        .chat-wrapper {
+            width: 100%;
+            max-width: 900px;
+            height: calc(100vh - 140px);
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .message-author {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .message-text {
+            font-size: 15px;
+        }
+
+        .chat-input {
+            padding: 16px;
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-main);
+        }
+
+        .chat-input button {
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+        }
+
+        .chat-disabled {
+            color: var(--text-muted);
+            font-size: 14px;
+            text-align: center;
+            padding: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <!-- ЛЕВАЯ ЧАСТЬ -->
+    <div class="profile">
+        {% if user %}
+        <img src="/static/avatar.jpg" class="avatar">
+        <a href="/profile" class="username">{{ user.username }}</a>
+        {% else %}
+        <span class="username">Nameless chat</span>
+        {% endif %}
+    </div>
+
+    {% if user %}
+    <form action="{{ url_for('logout_user') }}" method="post" style="display: inline;">
+        <button class="auth-btn" type="submit">Выйти</button>
+    </form>
+    {% else %}
+    <form action="/auth" method="get" style="display:inline;">
+        <button type="submit" class="auth-btn">Войти</button>
+    </form>
+    {% endif %}
+
+</header>
+
+<main>
+    <div class="chat-wrapper">
+
+        <!-- СООБЩЕНИЯ -->
+        <div class="messages">
+            <div class="message">
+                <div class="message-author">Ivan Well</div>
+                <div class="message-text">Привет всем 👋</div>
+            </div>
+
+            <div class="message">
+                <div class="message-author">Anna</div>
+                <div class="message-text">Минималистичный чат — классная идея</div>
+            </div>
+        </div>
+
+        <!-- ФОРМА ВВОДА -->
+        <!-- ЕСЛИ АВТОРИЗОВАН -->
+        <!--
+        <form class="chat-input">
+            <input type="text" placeholder="Введите сообщение">
+            <button>Отправить</button>
+        </form>
+        -->
+
+        <!-- ЕСЛИ НЕ АВТОРИЗОВАН -->
+        <div class="chat-disabled">
+            Войдите, чтобы отправлять сообщения
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
