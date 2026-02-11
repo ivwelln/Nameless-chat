@@ -1,12 +1,12 @@
 <div class="chat-window">
     <div class="chat-header">
         <div class="chat-title">
-            <h1>Общий чат</h1>
+            <h1 id="chatTitle">Общий чат</h1>
             <p>Одна лента, ноль лишнего шума</p>
         </div>
         <div class="chat-tabs" aria-label="Список чатов">
             {% for chat in chats %}
-            <button class="tab active" type="button">{{ chat.name }}</button>
+            <button class="tab chat-tab" type="button" data-chat-id="{{ chat.id }}">{{ chat.name }}</button>
             {% endfor %}
             <button class="tab tab-add" type="button" title="Создать чат" aria-label="Создать чат">
                 <span class="plus" aria-hidden="true">+</span>
@@ -15,20 +15,7 @@
     </div>
 
     <div class="chat-body" id="chatBody">
-        <div class="message">
-            <div class="avatar">IW</div>
-            <div class="bubble">
-                <div class="meta">Ivan Well · 19:02</div>
-                <div class="text">Добро пожаловать в Nameless. Здесь будет поток сообщений.</div>
-            </div>
-        </div>
-        <div class="message">
-            <div class="avatar">AN</div>
-            <div class="bubble">
-                <div class="meta">Anna · 19:05</div>
-                <div class="text">После авторизации можно будет писать сообщения.</div>
-            </div>
-        </div>
+        <div class="chat-empty" id="chatEmpty">Выберите чат, чтобы увидеть сообщения.</div>
     </div>
 
     <form class="chat-input" id="chatForm">

@@ -208,6 +208,12 @@ body {
     overflow-y: auto;
 }
 
+.chat-empty {
+    color: var(--text-soft);
+    font-size: 14px;
+    padding: 12px 2px;
+}
+
 .message {
     display: grid;
     grid-template-columns: 42px 1fr;

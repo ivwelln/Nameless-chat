@@ -7,6 +7,9 @@ const forms = document.querySelectorAll(".auth-form");
 const openAuthBtn = document.querySelector("[data-open-auth]");
 const chatForm = document.getElementById("chatForm");
 const addChatBtn = document.querySelector(".tab-add");
+const chatTitle = document.getElementById("chatTitle");
+const chatBody = document.getElementById("chatBody");
+const chatEmpty = document.getElementById("chatEmpty");
 
 function setActiveTab(tab) {
     tabButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === tab));
@@ -43,10 +46,15 @@ async function submitAuth(url, payload) {
         body: JSON.stringify(payload),
     });
 
+    const contentType = res.headers.get("content-type") || "";
+    const isJson = contentType.includes("application/json");
+    const data = isJson ? await res.json().catch(() => null) : null;
+
     if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Ошибка запроса" }));
-        throw new Error(err.detail || "Ошибка запроса");
+        const detail = data && data.detail ? data.detail : "Ошибка запроса";
+        throw new Error(detail);
     }
+    return data;
 }
 
 const loginForm = document.getElementById("loginForm");
@@ -83,6 +91,103 @@ if (chatForm && isAuthenticated) {
     if (button) button.removeAttribute("disabled");
 }
 
+function showEmpty(text) {
+    if (!chatBody) return;
+    chatBody.innerHTML = "";
+    const empty = document.createElement("div");
+    empty.className = "chat-empty";
+    empty.textContent = text;
+    chatBody.appendChild(empty);
+}
+
+function setActiveChatTab(tab) {
+    document.querySelectorAll(".chat-tab").forEach((btn) => btn.classList.remove("active"));
+    tab.classList.add("active");
+    if (chatTitle) chatTitle.textContent = tab.textContent.trim();
+}
+
+function getInitials(name) {
+    if (!name) return "??";
+    const parts = name.trim().split(/\s+/);
+    const first = parts[0]?.[0] || "";
+    const second = parts[1]?.[0] || parts[0]?.[1] || "";
+    return (first + second).toUpperCase();
+}
+
+function formatTime(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+}
+
+function renderMessages(messages) {
+    if (!chatBody) return;
+    chatBody.innerHTML = "";
+
+    if (!messages || messages.length === 0) {
+        showEmpty("Сообщений пока нет.");
+        return;
+    }
+
+    messages.forEach((msg) => {
+        const userName = msg.user?.username || msg.username || msg.user_name || "Пользователь";
+        const time = formatTime(msg.timestamp || msg.created_at);
+
+        const message = document.createElement("div");
+        message.className = "message";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = getInitials(userName);
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = time ? `${userName} · ${time}` : userName;
+
+        const text = document.createElement("div");
+        text.className = "text";
+        text.textContent = msg.content || "";
+
+        bubble.appendChild(meta);
+        bubble.appendChild(text);
+        message.appendChild(avatar);
+        message.appendChild(bubble);
+        chatBody.appendChild(message);
+    });
+}
+
+async function loadMessages(chatId) {
+    if (!chatId) return;
+    showEmpty("Загрузка...");
+    try {
+        const res = await fetch(`/chat/${chatId}/messages`, { credentials: "include" });
+        if (!res.ok) throw new Error("Не удалось загрузить сообщения");
+        const data = await res.json();
+        renderMessages(data);
+    } catch (error) {
+        showEmpty(error.message || "Ошибка загрузки сообщений");
+    }
+}
+
+function bindChatTab(tab) {
+    tab.addEventListener("click", () => {
+        if (!isAuthenticated) {
+            document.body.classList.add("auth-open");
+            return;
+        }
+        const chatId = tab.dataset.chatId;
+        if (!chatId) return;
+        setActiveChatTab(tab);
+        loadMessages(chatId);
+    });
+}
+
+document.querySelectorAll(".chat-tab").forEach(bindChatTab);
+
 if (addChatBtn) {
     addChatBtn.addEventListener("click", async (event) => {
         if (!isAuthenticated) {
@@ -91,18 +196,34 @@ if (addChatBtn) {
         }
         event.preventDefault();
         try {
-            await submitAuth("/chat/create");
+            const data = await submitAuth("/chat/create");
             const tabs = addChatBtn.closest(".chat-tabs");
             if (!tabs) return;
 
             const newTab = document.createElement("button");
-            newTab.className = "tab active";
+            newTab.className = "tab chat-tab";
             newTab.type = "button";
-            newTab.textContent = "Новый чат";
+            newTab.textContent = data && data.name ? data.name : "Новый чат";
+            if (data && data.id) newTab.dataset.chatId = data.id;
 
             tabs.insertBefore(newTab, addChatBtn);
+            bindChatTab(newTab);
+            setActiveChatTab(newTab);
+            if (data && data.id) {
+                loadMessages(data.id);
+            } else {
+                showEmpty("Чат создан. Обновите страницу, чтобы загрузить сообщения.");
+            }
         } catch (error) {
             alert(error.message);
         }
     });
+}
+
+const firstTab = document.querySelector(".chat-tab");
+if (firstTab && isAuthenticated) {
+    setActiveChatTab(firstTab);
+    if (firstTab.dataset.chatId) {
+        loadMessages(firstTab.dataset.chatId);
+    }
 }
